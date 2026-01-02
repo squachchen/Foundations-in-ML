@@ -265,7 +265,7 @@ plt.show()
 # ------------------------------------------------------------
 
 lr = 0.2       # learning rate (try 0.05, 0.1, 0.2)
-epochs = 25
+epochs = 50
 
 # Standardized plot limits
 z1_min, z1_max = Xs[:, 0].min(), Xs[:, 0].max()
