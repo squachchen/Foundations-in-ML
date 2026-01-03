@@ -452,4 +452,96 @@ plt.ylabel("Weight")
 plt.title("Final Model Prediction (Epoch 50)")
 plt.legend()
 plt.show()
+# ------------------------------------------------------------
+# STEP 7 Save the final weights and bias
+# ------------------------------------------------------------
+w_final = w.copy()
+b_final = b
 
+# ============================================================
+# Part 3. User Input → Prediction (Final Epoch Model)
+# ============================================================
+
+# ------------------------------------------------------------
+# STEP 1: Valid input ranges (from training data)
+# ------------------------------------------------------------
+length_min, length_max = df2['Length2'].min(), df2['Length2'].max()
+width_min,  width_max  = df2['Width'].min(),  df2['Width'].max()
+height_min, height_max = df2['Height'].min(), df2['Height'].max()
+weight_min, weight_max = df2['Weight'].min(), df2['Weight'].max()
+
+print("Enter values within these ranges:")
+print(f"  Length : [{length_min:.1f}, {length_max:.1f}]")
+print(f"  Width  : [{width_min:.1f},  {width_max:.1f}]")
+print(f"  Height : [{height_min:.1f}, {height_max:.1f}]")
+print(f"  Weight : [{weight_min:.1f}, {weight_max:.1f}]")
+print("Good test values are Bream 500 30 14 5. Roach is 110 20 6 3 ")
+# ------------------------------------------------------------
+# STEP 2: User input
+# ------------------------------------------------------------
+weight = float(input("Weight: "))
+length = float(input("Length: "))
+height = float(input("Height: "))
+width  = float(input("Width : "))
+
+
+# Optional: basic range check
+assert length_min <= length <= length_max, "Length out of range"
+assert width_min  <= width  <= width_max,  "Width out of range"
+assert height_min <= height <= height_max, "Height out of range"
+assert weight_min <= weight <= weight_max, "Weight out of range"
+
+# ------------------------------------------------------------
+# STEP 3: Feature construction (must match training)
+# ------------------------------------------------------------
+volume = height * (length ** 2) * width
+x_user = np.array([volume, weight])
+
+# Standardize using TRAINING statistics
+x_user_std = (x_user - mu) / sigma
+
+# ------------------------------------------------------------
+# STEP 4: Prediction using FINAL model
+# ------------------------------------------------------------
+score = np.dot(w_final, x_user_std) + b_final
+
+prediction = "Bream" if score >= 0 else "Roach"
+confidence = 1.0 / (1.0 + np.exp(-abs(score)))  # optional, intuitive
+
+# ------------------------------------------------------------
+# STEP 5: Output
+# ------------------------------------------------------------
+print("\n--- Prediction (Final Epoch Model) ---")
+print(f"Volume computed : {volume:.2f}")
+print(f"Raw score       : {score:.4f}")
+print(f"Prediction      : {prediction}")
+print(f"Confidence*     : {confidence:.2f}")
+
+print("\n*Confidence is derived from distance to the decision boundary.")
+
+plt.figure(figsize=(7, 5))
+plt.scatter(x_b, y_b, label="Bream")
+plt.scatter(x_r, y_r, label="Roach")
+
+plt.scatter(volume, weight,
+            s=150,
+            marker="*",
+            color="black",
+            label="Your Fish")
+
+# Final decision boundary
+w_orig = w_final / sigma
+b_orig = b_final - np.dot(w_orig, mu)
+
+plot_boundary_segment(
+    plt.gca(),
+    w_orig[0], w_orig[1], b_orig,
+    x_min, x_max, y_min, y_max,
+    label="Final boundary"
+)
+
+plt.xlabel("Volume")
+plt.ylabel("Weight")
+plt.title("Final Model Prediction (Epoch 50)")
+plt.legend()
+plt.show()
